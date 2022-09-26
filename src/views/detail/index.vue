@@ -8,20 +8,19 @@
 
 <script>
 export default {
-  name: 'detail',
+  name: "mDetail",
   data() {
     return {
-      detail: ''
-    }
+      detail: "",
+    };
   },
   computed: {
     id() {
-      return this.$route.params?.id
-    }
-  }
-}
+      return this.$route.params?.id;
+    },
+  },
+};
 </script>
 
 <style>
-
 </style>

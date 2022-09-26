@@ -4,10 +4,9 @@
 
 <script>
 export default {
-  name: 'Home'
-}
+  name: "mHome",
+};
 </script>
 
 <style>
-
 </style>
