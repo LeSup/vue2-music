@@ -7,9 +7,11 @@ const dev = {
   devtool: 'eval-cheap-module-source-map',
   devServer: {
     static: './public',
-    open: true,
     hot: 'only',
-    host: '0.0.0.0'
+    host: '0.0.0.0',
+    proxy: {
+      '/api': 'http://localhost:9000'
+    }
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin()

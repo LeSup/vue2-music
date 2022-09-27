@@ -1,12 +1,15 @@
 <template>
-  <div>home page</div>
+  <div>
+    搜索
+  </div>
 </template>
 
 <script>
 export default {
-  name: "mHome",
-};
+  name: 'vmSearch'
+}
 </script>
 
 <style>
+
 </style>

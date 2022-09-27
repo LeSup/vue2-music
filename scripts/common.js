@@ -12,7 +12,8 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.vue'],
     alias: {
-      '@': path.resolve(__dirname, '../src')
+      '@': path.resolve(__dirname, '../src'),
+      'common': path.resolve(__dirname, '../src/common'),
     }
   },
   module: {
@@ -32,7 +33,14 @@ module.exports = {
             options: { importLoaders: 1 }
           },
           'postcss-loader',
-          'stylus-loader'
+          {
+            loader: 'stylus-loader',
+            options: {
+              stylusOptions: {
+                resolveURL: false
+              }
+            }
+          }
         ]
       },
       {

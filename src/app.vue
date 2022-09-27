@@ -1,20 +1,22 @@
 <template>
-  <div>
-    <h1>hello world!</h1>
-    <ul>
-      <router-link to="/home" tag="li">
-        <span>to home</span>
-      </router-link>
-      <router-link to="/detail/123" tag="li">
-        <span>to detail</span>
-      </router-link>
-    </ul>
+  <div id="vm-music">
+    <vm-header></vm-header>
+    <vm-nav></vm-nav>
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-export default {};
+import VmHeader from '@/views/vm-header'
+import VmNav from '@/views/vm-nav'
+
+export default {
+  name: 'app',
+  components: {
+    VmHeader,
+    VmNav
+  }
+};
 </script>
 
 <style lang="stylus">

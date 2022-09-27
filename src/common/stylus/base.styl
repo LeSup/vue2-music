@@ -1,0 +1,45 @@
+body, html
+  font-family: system-ui, -apple-system, 'PingFang SC', 'STHeitiSC-Light', 'Helvetica-Light', arial, sans-serif, 'Droid Sans Fallback'
+  line-height: 1
+  color: var(--color-text)
+  background: var(--color-background)
+  // 设置点击高亮的颜色
+  -webkit-tap-highlight-color: transparent
+  user-select: none
+  // 只允许进行滚动和缩放操作，可以取消300ms延时
+  touch-action: manipulation
+
+html
+  font-size: 16px
+// 375px ~ 414px 字体大小在 16px ~ 18px 之间
+@media screen and (min-width: 375px)
+  html
+    font-size: 16px + 2 * (100vw - 375px) / 39
+// 414px ~ 1000px 字体大小在 18px ~ 22px 之间
+@media screen and (min-width: 414px)
+  html
+    font-size: 18px + 4 * (100vw - 414px) /586
+// 超过1000px时，每增加100px，字体增加0.5px
+@media screen and (min-width: 1000px)
+  html
+    font-size: 22px + 5 * (100vw - 1000px) / 1000
+
+:root
+  --color-background: #222
+  --color-background-d: rgba(0, 0, 0, 0.3)
+  --color-highlight-background: #333
+  --color-dialog-background: #666
+  --color-theme: #ffcd32
+  --color-theme-d: rgba(255, 205, 49, 0.5)
+  --color-sub-theme: #d93f30
+  --color-text: #fff
+  --color-text-d: rgba(255, 255, 255, .3)
+  --color-text-l: rgba(255, 255, 255, .5)
+  --color-text-ll: rgba(255, 255, 255, .8)
+  --font-size-small-s: .625rem             // 10px
+  --font-size-small: .75rem                // 12px
+  --font-size-medium: .875rem              // 14px
+  --font-size-medium-x: 1rem               // 16px
+  --font-size-large: 1.125rem              // 18px
+  --font-size-large-x: 1.25rem             // 20px
+  --font-size-large-xx: 1.375rem           // 22px

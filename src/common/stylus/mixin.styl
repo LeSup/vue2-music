@@ -1,0 +1,10 @@
+// 正常使用两倍图，像素比为3时，使用三倍图
+bg-img($url)
+  background-image: url($url + '@2x.png')
+@media (min-resolution: 3ddpx)
+  background-image: url($url + '@3x.png')
+
+ellipsis()
+  overflow: hidden
+  white-space: nowrap
+  text-overflow: hidden
