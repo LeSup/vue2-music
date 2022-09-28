@@ -55,8 +55,8 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'vue-music',
-      template: './public/index.html'
+      title: 'Vue Music',
+      template: 'public/index.html'
     }),
     // 对sfc中不同的类型模块应用不同的loader
     new VueLoaderPlugin()

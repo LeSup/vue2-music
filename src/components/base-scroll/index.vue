@@ -30,16 +30,11 @@ export default {
   },
   watch: {
     data() {
-      // 因为要拿到计算后的高度，所以在下次选然后执行
-      setTimeout(() => {
-        this.refresh();
-      }, 20);
+      this.refresh();
     }
   },
   mounted() {
-    setTimeout(() => {
-      this._initScroll();
-      }, 20);
+    setTimeout(this._initScroll, 20);
   },
   methods: {
     _initScroll() {
@@ -49,7 +44,10 @@ export default {
       });
     },
     refresh() {
-      this.scroll?.refresh();
+      // 因为要拿到计算后的高度，所以在下次选然后执行
+      this.$nextTick(() => {
+        this.scroll?.refresh();
+      });
     }
   }
 }

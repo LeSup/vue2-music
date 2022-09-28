@@ -9,6 +9,9 @@ Vue.use(VueRouter);
 
 export default new VueRouter({
   routes: [{
+    path: '/',
+    redirect: '/recommend'
+  }, {
     path: '/recommend',
     component: Recommend
   }, {

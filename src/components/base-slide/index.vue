@@ -1,12 +1,12 @@
 <template>
-  <div class="base-slide" ref="ref">
+  <div class="base-slide" ref="slide">
     <div class="base-slide-group" ref="slideGroup">
       <slot></slot>
     </div>
     <div class="base-slide-dots">
       <i
         class="base-slide-dot"
-        :class="{active: current = index}"
+        :class="{active: current === index}"
         v-for="(item, index) in dots"
         :key="index"
       ></i>
@@ -46,6 +46,10 @@ export default {
     interval: {
       type: Number,
       default: 3000
+    },
+    showDots: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -54,27 +58,28 @@ export default {
       dots: []
     }
   },
-  watch: {
-    data() {
-      this.$nextTick(this.refresh);
-    }
-  },
   mounted() {
-    this.$nextTick(() => {
-      this._init();
-    });
+    this.$nextTick(this.init);
 
     window.addEventListener('resize', this._resize);
   },
+  // 被 keep-alive 缓存的组件激活时调用
   activated() {
+    if (!this.slide) {
+      return;
+    }
+    this.slide.enable();
+    this._play();
   },
+  // 被 keep-alive 缓存的组件失活时调用
   deactivated() {
     this.slide.disable();
-    this.clearTimeout(this.timer);
+    clearTimeout(this.timer);
   },
   destroyed() {
     this.slide.disable();
-    this.clearTimeout(this.timer);
+    clearTimeout(this.timer);
+    window.removeEventListener('resize', this._resize);
   },
   methods: {
     refresh() {
@@ -85,11 +90,12 @@ export default {
       this._initDots();
       this.slide.refresh();
     },
-    _init() {
+    init() {
       this._initSlideWidth();
       this._initDots();
       this._initSlide();
     },
+    // 初始子项的宽度，以及容器的宽度，需子节点渲染后调用
     _initSlideWidth() {
       const clientWidth = this.$refs.slide.clientWidth;
       const slideGroup = this.$refs.slideGroup;
@@ -104,15 +110,21 @@ export default {
         width += clientWidth;
       }
 
-      if (this.loop) {
+      // 初始时，
+      if (this.loop && !this.isResize) {
+        this.isResize = true;
         width += clientWidth * 2;
       }
 
       slideGroup.style.width = width + 'px';
     },
     _initDots() {
+      if (!this.showDots) {
+        return;
+      }
       this.dots = new Array(this.data.length);
     },
+    // 初始化BScroll，以及监听相应的事件
     _initSlide() {
       this.slide = new BScroll(this.$refs.slide, {
         scrollX: true,
@@ -128,16 +140,24 @@ export default {
         }
       });
 
+      // 滚动结束后，设置页码，以及重新播放
       this.slide.on('scrollEnd', this._scrollEnd);
 
-      this.slide.on('beforeScrollStart', this._beforeScrollStart);
+      // 触摸后重新播放
+      this.slide.on('touchEnd', this._play);
+
+      // 滚动前（自动、手动），清除定时
+      this.slide.on('beforeScrollStart', () => {
+        if (this.autoPlay) {
+          clearTimeout(this.timer);
+        }
+      });
+
+      this._play();
     },
     _scrollEnd() {
       this.current = this.slide.getCurrentPage().pageX;
       this._play();
-    },
-    _beforeScrollStart() {
-      clearTimeout(this.timer);
     },
     _play() {
       if (!this.autoPlay) {
@@ -170,4 +190,26 @@ export default {
 <style lang="stylus">
   .base-slide
     position: relative
+  .base-slide-group
+    overflow: hidden
+  .base-slide-item
+    float: left
+    overflow: hidden
+  .base-slide-dots
+    position: absolute
+    display: flex
+    justify-content: center
+    bottom: 12px
+    left: 50%
+    transform: translateX(-50%)
+  .base-slide-dot
+    width: 8px
+    height: 8px
+    border-radius: 4px
+    background-color: var(--color-text-l)
+    &:not(:last-child)
+      margin-right: 8px
+    &.active
+      width: 20px
+      background-color: var(--color-text-ll)
 </style>
