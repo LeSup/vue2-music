@@ -8,3 +8,12 @@ export function addClass(el, cls) {
   }
   el.classList.add(cls);
 }
+
+export function getData(el, key, val) {
+  key = 'data-' + key;
+  if (val) {
+    return el.setAttribute(key, val);
+  } else {
+    return el.getAttribute(key);
+  }
+}

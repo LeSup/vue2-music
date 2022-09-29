@@ -21,12 +21,6 @@ import { addClass } from '@/common/js/dom';
 export default {
   name: 'baseSlide',
   props: {
-    data: {
-      type: Array,
-      default() {
-        return [];
-      }
-    },
     loop: {
       type: Boolean,
       default: false
@@ -99,11 +93,11 @@ export default {
     _initSlideWidth() {
       const clientWidth = this.$refs.slide.clientWidth;
       const slideGroup = this.$refs.slideGroup;
-      const children = slideGroup.children;
+      this.children = slideGroup.children;
 
       let width = 0;
-      for (let i = 0, len = children.length; i < len; i++) {
-        const child = children[i];
+      for (let i = 0, len = this.children.length; i < len; i++) {
+        const child = this.children[i];
         addClass(child, 'base-slide-item');
         child.style.width = clientWidth + 'px';
 
@@ -122,7 +116,7 @@ export default {
       if (!this.showDots) {
         return;
       }
-      this.dots = new Array(this.data.length);
+      this.dots = new Array(this.children.length);
     },
     // 初始化BScroll，以及监听相应的事件
     _initSlide() {

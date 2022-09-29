@@ -42,12 +42,21 @@ export default {
         probeType: this.probeType,
         eventPassthrough: this.direction === DIR_V ? DIR_H : DIR_V
       });
+
+      if (this.$listeners.scroll) {
+        this.scroll.on('scroll', pos => {
+          this.$emit('scroll', pos);
+        });
+      }
     },
     refresh() {
       // 因为要拿到计算后的高度，所以在下次选然后执行
       this.$nextTick(() => {
         this.scroll?.refresh();
       });
+    },
+    scrollToElement(el, time) {
+      this.scroll.scrollToElement(el, time);
     }
   }
 }

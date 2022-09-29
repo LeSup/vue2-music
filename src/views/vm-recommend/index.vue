@@ -1,9 +1,10 @@
 <template>
   <div class="vm-recommend">
     <base-scroll class="vm-recommend-wrapper" ref="scroll" :data="list">
-      <div>
+      <div class="vm-recommend-inner">
+        <!-- sliders数据加载完成后，才能初始化scroll组件 -->
         <template v-if="sliders.length">
-          <base-slide :data="sliders" :loop="true" :auto-play="true" :showDots="true">
+          <base-slide :loop="true" :auto-play="true" :showDots="true">
             <div v-for="item in sliders" :key="item.id">
               <a class="base-slide-item-a" :href="item.link">
                 <img class="base-slide-item-img" @load="loadImage" :src="item.pic" alt="" />
