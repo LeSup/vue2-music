@@ -15,7 +15,7 @@
         <div class="vm-recommend-hot">
           <h2 class="vm-recommend-hot-title">热门歌单推荐</h2>
           <ul class="vm-recommend-hot-ul">
-            <li class="vm-recommend-hot-li" v-for="item in albums" :key="item.id">
+            <li class="vm-recommend-hot-li" @click="handleClick(item)" v-for="item in albums" :key="item.id">
               <div class="img-wrapper">
                 <img class="img" v-lazy="item.pic" alt="">
               </div>
@@ -31,6 +31,7 @@
     <template v-if="!albums.length">
       <base-loading></base-loading>
     </template>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -39,6 +40,7 @@ import BaseScroll from '@/components/base-scroll';
 import BaseSlide from '@/components/base-slide';
 import BaseLoading from '@/components/base-loading';
 import { getRecommend } from '@/services/recommend';
+import { mapMutations } from 'vuex';
 
 export default {
   name: 'vmRecommend',
@@ -70,7 +72,16 @@ export default {
       setTimeout(() => {
         this.$refs.scroll.refresh()
       }, 20);
-    }
+    },
+    handleClick(item) {
+      this.setAlbum(item);
+      this.$router.push({
+        path: `/recommend/${item.id}`,
+      });
+    },
+    ...mapMutations([
+      'setAlbum'
+    ])
   },
   components: {
     BaseScroll,

@@ -13,7 +13,7 @@
           <ul class="singer-ul">
             <li class="singer-li" v-for="singer in item.data" :key="singer.mid">
               <div class="img-wrapper">
-                <img class="img" :src="singer.pic" :alt="singer.name" />
+                <img class="img" v-lazy="singer.pic" :alt="singer.name" />
               </div>
               <div class="content">
                 <span class="text">{{singer.name}}</span>
@@ -41,11 +41,15 @@
         >{{item.key}}</li>
       </ul>
     </div>
+    <template v-if="!singers.length">
+      <base-loading></base-loading>
+    </template>
   </div>
 </template>
 
 <script>
 import BaseScroll from '@/components/base-scroll';
+import BaseLoading from '@/components/base-loading';
 import { getData } from '@/common/js/dom';
 import { getSinger } from '@/services/singer';
 import { ERR_OK } from '@/services/config';
@@ -212,7 +216,8 @@ export default {
     }
   },
   components: {
-    BaseScroll
+    BaseScroll,
+    BaseLoading
   }
 }
 </script>
