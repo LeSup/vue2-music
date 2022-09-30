@@ -1,22 +1,38 @@
 <template>
   <div class="base-music">
-    <div class="header">
+    <div class="header" ref="header">
       <div class="back" @click="goBack">
         <i class="icon icon-back"></i>
       </div>
       <h1 class="title">{{title}}</h1>
     </div>
-    <div class="bg-container" :style="bgStyle">
-      <div class="button-wrapper">
+    <div class="bg-wall" :class="{active: fixed}" :style="bgStyle" ref="wall">
+      <div class="button-wrapper" v-show="!fixed">
         <base-button class="music-button"></base-button>
       </div>
-      <div class="filter"></div>
+      <div class="filter" ref="filter"></div>
     </div>
+    <base-scroll
+      class="list-wrapper"
+      @scroll="handleScroll"
+      :data="data"
+      :probeType="3"
+    >
+      <base-list :data="data"></base-list>
+      <template v-if="!data.length">
+        <base-loading></base-loading>
+      </template>
+    </base-scroll>
   </div>
 </template>
 
 <script>
 import BaseButton from '@/components/base-button';
+import BaseList from '@/components/base-list';
+import BaseLoading from '@/components/base-loading';
+import BaseScroll from '@/components/base-scroll';
+
+const MAX_BLUR = 10;
 
 export default {
   name: 'baseMusic',
@@ -36,25 +52,67 @@ export default {
       }
     },
   },
+  data() {
+    return {
+      fixed: false
+    };
+  },
   computed: {
     bgStyle() {
       return {
-        'background-image': `url(${this.pic})`
+        'background-image': `url(${this.pic})`,
       };
-    }
+    },
+  },
+  created() {
+    this.wallHeight = 0;
+    this.maxScrollHeight = 0;
   },
   mounted() {
-    console.log(this.title);
-    console.log(this.pic);
-    console.log(this.data);
+    const headerRect = this.$refs.header.getBoundingClientRect();
+    this.wallHeight = window.innerWidth * 0.7;
+    this.maxScrollHeight = this.wallHeight - headerRect.height;
   },
   methods: {
     goBack() {
       this.$router.go(-1);
+    },
+    handleScroll(pos) {
+      const scrollY = pos.y;
+      console.log(scrollY);
+
+      this._scrollUp(scrollY);
+      this._scrollDown(scrollY);
+    },
+    _scrollUp(scrollY) {
+      let blur = 0;
+      let fixed = false;
+
+      if (scrollY < 0) {
+        blur = Math.min(MAX_BLUR, -(MAX_BLUR / this.maxScrollHeight * scrollY));
+        if (-scrollY >= this.maxScrollHeight) {
+          fixed = true;
+        }
+      }
+
+      this.fixed = fixed;
+      this.$refs.filter.style['backdrop-filter'] = `blur(${blur}px)`;
+    },
+    _scrollDown(scrollY) {
+      let scale = 1;
+
+      if (scrollY > 0) {
+        scale = 1 + Math.min(1, scrollY / this.wallHeight);
+      }
+
+      this.$refs.wall.style.transform = `scale(${scale})`;
     }
   },
   components: {
-    BaseButton
+    BaseButton,
+    BaseList,
+    BaseLoading,
+    BaseScroll
   }
 }
 </script>
@@ -62,11 +120,12 @@ export default {
 <style lang="stylus">
   .base-music
     position: relative
+    overflow hidden
     .header
       position: absolute
       right: 0
       left: 0
-      z-index: 1
+      z-index: 3
       height: 2.5rem
       .back
         position: absolute
@@ -82,10 +141,15 @@ export default {
         line-height: 2.5rem
         text-align: center
         color: var(--color-text)
-    .bg-container
+    .bg-wall
       position: relative
       padding-bottom: 70%
       background-size: cover
+      transform-origin: top center
+      &.active
+        height: 2.5rem
+        padding-bottom: 0
+        z-index: 2
       .button-wrapper
         position: absolute
         right: 0
@@ -101,4 +165,13 @@ export default {
         bottom: 0
         left: 0
         background-color: rgba(7, 17, 27, 0.4)
+    .list-wrapper
+      position: absolute
+      top: 70vw
+      right: 0
+      bottom: 0
+      left: 0
+      .base-list
+        position: relative
+        z-index: 1
 </style>
