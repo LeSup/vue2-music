@@ -41,6 +41,10 @@ export default {
       type: Number,
       default: 3000
     },
+    click: {
+      type: Boolean,
+      default: true
+    },
     showDots: {
       type: Boolean,
       default: false
@@ -126,6 +130,7 @@ export default {
         // 根据滑动的距离和时间计算出动量，并生成滚动动画
         momentum: false,
         bounce: false,
+        click: this.click,
         stopPropagation: true,
         snap: {
           loop: this.loop,

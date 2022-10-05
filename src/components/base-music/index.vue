@@ -18,7 +18,7 @@
       :data="data"
       :probeType="3"
     >
-      <base-list :data="data"></base-list>
+      <base-list :data="data" :rank="rank"></base-list>
       <template v-if="!data.length">
         <base-loading></base-loading>
       </template>
@@ -44,6 +44,10 @@ export default {
     pic: {
       type: String,
       default: ''
+    },
+    rank: {
+      type: Boolean,
+      default: false
     },
     data: {
       type: Array,
@@ -79,7 +83,6 @@ export default {
     },
     handleScroll(pos) {
       const scrollY = pos.y;
-      console.log(scrollY);
 
       this._scrollUp(scrollY);
       this._scrollDown(scrollY);
@@ -119,7 +122,12 @@ export default {
 
 <style lang="stylus">
   .base-music
-    position: relative
+    position: fixed
+    top: 0
+    right: 0
+    bottom: 0
+    left: 0
+    background-color: var(--color-background)
     overflow hidden
     .header
       position: absolute

@@ -2,7 +2,7 @@
   <div class="vm-rank">
     <base-scroll class="vm-rank-view" :data="topList">
       <ul class="rank-ul">
-        <li class="rank-li" v-for="item in topList" :key="item.id">
+        <li class="rank-li" @click="handleClick(item)" v-for="item in topList" :key="item.id">
           <div class="img-wrapper">
             <img class="img" v-lazy="item.pic" :alt="item.name" />
           </div>
@@ -18,6 +18,7 @@
     <template v-if="!topList.length">
       <base-loading></base-loading>
     </template>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -25,6 +26,7 @@
 import BaseScroll from '@/components/base-scroll';
 import BaseLoading from '@/components/base-loading';
 import { getTopList } from '@/services/top-list';
+import { mapMutations } from 'vuex';
 
 export default {
   name: 'vmRank',
@@ -40,7 +42,16 @@ export default {
     async getTopList() {
       const { topList } = await getTopList();
       this.topList = topList;
-    }
+    },
+    handleClick(item) {
+      this.setRank(item);
+      this.$router.push({
+        path: `/rank/${item.id}`
+      });
+    },
+    ...mapMutations([
+      'setRank'
+    ])
   },
   components: {
     BaseScroll,

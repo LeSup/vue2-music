@@ -11,7 +11,12 @@
         <li class="singer-group" ref="singerGroup" v-for="item in singers" :key="item.key">
           <h2 class="shortcut" ref="shortcut">{{item.key}}</h2>
           <ul class="singer-ul">
-            <li class="singer-li" v-for="singer in item.data" :key="singer.mid">
+            <li
+              class="singer-li"
+              @click="handleClick(singer)"
+              v-for="singer in item.data"
+              :key="singer.mid"
+            >
               <div class="img-wrapper">
                 <img class="img" v-lazy="singer.pic" :alt="singer.name" />
               </div>
@@ -44,16 +49,18 @@
     <template v-if="!singers.length">
       <base-loading></base-loading>
     </template>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
 import BaseScroll from '@/components/base-scroll';
 import BaseLoading from '@/components/base-loading';
+import Singer from '@/common/js/singer';
 import { getData } from '@/common/js/dom';
 import { getSinger } from '@/services/singer';
 import { ERR_OK } from '@/services/config';
-import Singer from '@/common/js/singer';
+import { mapMutations } from 'vuex';
 
 const HOT_KEY = '热';
 const HOT_LEN = 10;
@@ -83,7 +90,7 @@ export default {
       return {
         transform: `translateY(${this.translateY}px)`
       };
-    }
+    },
   },
   watch: {
     singers() {
@@ -119,6 +126,12 @@ export default {
       if (code === ERR_OK) {
         this.singers = this._normalize(data.list || []);
       }
+    },
+    handleClick(item) {
+      this.setSinger(item);
+      this.$router.push({
+        path: `/singer/${item.mid}`
+      });
     },
     handleScroll(pos) {
       this.scrollY = pos.y;
@@ -213,7 +226,10 @@ export default {
       ret.sort((a, b) => a.key.charCodeAt(0) - b.key.charCodeAt(0));
 
       return hot.concat(ret);
-    }
+    },
+    ...mapMutations([
+      'setSinger'
+    ])
   },
   components: {
     BaseScroll,

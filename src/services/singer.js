@@ -1,5 +1,6 @@
 import jsonp from 'common/js/jsonp';
 import { commonParams, options } from './config';
+import { get } from './base';
 
 export function getSinger() {
   const url = 'https://c.y.qq.com/v8/fcg-bin/v8.fcg'
@@ -16,4 +17,10 @@ export function getSinger() {
   });
 
   return jsonp(url, data, options);
+}
+
+export function getSingerDetail(singer) {
+  return get('/api/getSingerDetail', {
+    mid: singer.mid
+  })
 }

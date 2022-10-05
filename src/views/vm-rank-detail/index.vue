@@ -1,43 +1,37 @@
 <template>
-  <transition appear name="slide">
-    <base-music
-      :title="album.title"
-      :pic="album.pic"
-      :data="albums"
-    >
-    </base-music>
+  <transition name="slide">
+    <base-music :title="rank.name" :pic="rank.pic" :rank="true" :data="songs"></base-music>
   </transition>
 </template>
 
 <script>
 import BaseMusic from '@/components/base-music';
-import { getAlbum } from '@/services/recommend';
+import { getTopDetail } from '@/services/top-list';
 import { mapGetters } from 'vuex';
 
 export default {
-  name: 'vmDetail',
+  name: 'vmRankDetail',
   data() {
     return {
-      albums: []
-    }
+      songs: []
+    };
   },
   computed: {
     ...mapGetters([
-      'album'
+      'rank'
     ])
   },
   mounted() {
-    if (!this.album.id) {
-      this.$router.replace({
-        path: '/recommend'
-      });
+    if (!this.rank?.id) {
+      this.$router.replace('/rank');
+      return;
     }
-    this.getAlbum(this.album);
+    this.getTopDetail();
   },
   methods: {
-    async getAlbum(params) {
-      const { songs } = await getAlbum(params);
-      this.albums = songs;
+    async getTopDetail() {
+      const { songs } = await getTopDetail(this.rank);
+      this.songs = songs;
     }
   },
   components: {
