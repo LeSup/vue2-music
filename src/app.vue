@@ -5,24 +5,24 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
+    <vm-player></vm-player>
   </div>
 </template>
 
 <script>
-import VmHeader from '@/views/vm-header'
-import VmNav from '@/views/vm-nav'
+import VmHeader from '@/views/vm-header';
+import VmNav from '@/views/vm-nav';
+import VmPlayer from '@/views/vm-player';
 
 export default {
   name: 'app',
   components: {
     VmHeader,
-    VmNav
+    VmNav,
+    VmPlayer
   }
 };
 </script>
 
-<style lang="stylus">
-h1 {
-  color: deepskyblue;
-}
+<style>
 </style>

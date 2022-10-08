@@ -18,7 +18,7 @@
       :data="data"
       :probeType="3"
     >
-      <base-list :data="data" :rank="rank"></base-list>
+      <base-list :data="data" :rank="rank" @click="handleClickItem"></base-list>
       <template v-if="!data.length">
         <base-loading></base-loading>
       </template>
@@ -31,6 +31,7 @@ import BaseButton from '@/components/base-button';
 import BaseList from '@/components/base-list';
 import BaseLoading from '@/components/base-loading';
 import BaseScroll from '@/components/base-scroll';
+import { mapActions } from 'vuex';
 
 const MAX_BLUR = 10;
 
@@ -87,6 +88,12 @@ export default {
       this._scrollUp(scrollY);
       this._scrollDown(scrollY);
     },
+    handleClickItem(item, index) {
+      this.selectPlay({
+        list: this.data,
+        index
+      });
+    },
     _scrollUp(scrollY) {
       let blur = 0;
       let fixed = false;
@@ -109,7 +116,10 @@ export default {
       }
 
       this.$refs.wall.style.transform = `scale(${scale})`;
-    }
+    },
+    ...mapActions([
+      'selectPlay'
+    ])
   },
   components: {
     BaseButton,

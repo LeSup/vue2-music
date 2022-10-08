@@ -7,5 +7,23 @@ export default {
   },
   setRank(state, rank) {
     state.rank = rank;
+  },
+  setPlayList(state, list) {
+    state.playList = list;
+  },
+  setSequenceList(state, list) {
+    state.sequenceList = list;
+  },
+  setPlayMode(state, playMode) {
+    state.playMode = playMode;
+  },
+  setPlaying(state, playing) {
+    state.playing = playing;
+  },
+  setCurrentIndex(state, index) {
+    state.currentIndex = index;
+  },
+  setFullScreen(state, fullScreen) {
+    state.fullScreen = fullScreen;
   }
 }
