@@ -3,7 +3,7 @@
     <base-music
       :title="album.title"
       :pic="album.pic"
-      :data="albums"
+      :data="songs"
     >
     </base-music>
   </transition>
@@ -12,13 +12,14 @@
 <script>
 import BaseMusic from '@/components/base-music';
 import { getAlbum } from '@/services/recommend';
+import { processSongs } from '@/services/song';
 import { mapGetters } from 'vuex';
 
 export default {
-  name: 'vmDetail',
+  name: 'vmRecommendDetail',
   data() {
     return {
-      albums: []
+      songs: []
     }
   },
   computed: {
@@ -36,8 +37,9 @@ export default {
   },
   methods: {
     async getAlbum(params) {
-      const { songs } = await getAlbum(params);
-      this.albums = songs;
+      const result = await getAlbum(params);
+      const songs = await processSongs(result.songs);
+      this.songs = songs;
     }
   },
   components: {

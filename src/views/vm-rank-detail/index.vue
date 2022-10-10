@@ -7,6 +7,7 @@
 <script>
 import BaseMusic from '@/components/base-music';
 import { getTopDetail } from '@/services/top-list';
+import { processSongs } from '@/services/song';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -30,7 +31,8 @@ export default {
   },
   methods: {
     async getTopDetail() {
-      const { songs } = await getTopDetail(this.rank);
+      const result = await getTopDetail(this.rank);
+      const songs = await processSongs(result.songs);
       this.songs = songs;
     }
   },

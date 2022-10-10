@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Recommend from '@/views/vm-recommend';
-import Album from '@/views/vm-album';
+import RecommendDetail from '@/views/vm-recommend-detail';
 import Singer from '@/views/vm-singer';
 import SingerDetail from '@/views/vm-singer-detail';
 import Rank from '@/views/vm-rank';
@@ -19,7 +19,7 @@ export default new VueRouter({
     component: Recommend,
     children: [{
       path: ':id',
-      component: Album
+      component: RecommendDetail
     }]
   }, {
     path: '/singer',

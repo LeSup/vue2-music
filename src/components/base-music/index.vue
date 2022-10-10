@@ -8,7 +8,7 @@
     </div>
     <div class="bg-wall" :class="{active: fixed}" :style="bgStyle" ref="wall">
       <div class="button-wrapper" v-show="!fixed">
-        <base-button class="music-button"></base-button>
+        <base-button class="music-button" @click="handleClick"></base-button>
       </div>
       <div class="filter" ref="filter"></div>
     </div>
@@ -88,6 +88,9 @@ export default {
       this._scrollUp(scrollY);
       this._scrollDown(scrollY);
     },
+    handleClick() {
+      this.randomPlay({ list: this.data });
+    },
     handleClickItem(item, index) {
       this.selectPlay({
         list: this.data,
@@ -118,7 +121,8 @@ export default {
       this.$refs.wall.style.transform = `scale(${scale})`;
     },
     ...mapActions([
-      'selectPlay'
+      'selectPlay',
+      'randomPlay'
     ])
   },
   components: {

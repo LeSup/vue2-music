@@ -22,7 +22,7 @@
           <div class="middle-l">
             <div class="cd-wrapper">
               <div class="cd" ref="cd">
-                <img class="image" :src="currentSong.pic" :alt="currentSong.name" />
+                <img class="image" :class="cdCls" :src="currentSong.pic" :alt="currentSong.name" />
               </div>
             </div>
             <p class="lyric"></p>
@@ -37,21 +37,23 @@
             <span class="dot"></span>
           </div>
           <div class="progress-wrapper">
-            <div class="time">00:06</div>
-            <div class="progress-bar"></div>
-            <div class="time">00:06</div>
+            <div class="time time-l">{{ _format(currentTime) }}</div>
+            <div class="progress-bar-wrapper">
+              <base-progress-bar :percent="percent" @change="handleChange"></base-progress-bar>
+            </div>
+            <div class="time time-r">{{ _format(currentSong.duration) }}</div>
           </div>
           <div class="operators">
-            <div class="i-wrapper i-left">
-              <i class="icon icon-sequence"></i>
+            <div class="i-wrapper i-left" @click="changeMode">
+              <i class="icon" :class="modeCls"></i>
             </div>
-            <div class="i-wrapper i-left">
+            <div class="i-wrapper i-left" :class="{disabled}" @click="handlePrev">
               <i class="icon icon-prev"></i>
             </div>
-            <div class="i-wrapper i-center">
-              <i class="icon icon-play"></i>
+            <div class="i-wrapper i-center" :class="{disabled}" @click="togglePlaying">
+              <i class="icon" :class="iconPlay"></i>
             </div>
-            <div class="i-wrapper i-right">
+            <div class="i-wrapper i-right" :class="{disabled}" @click="handleNext">
               <i class="icon icon-next"></i>
             </div>
             <div class="i-wrapper i-right">
@@ -65,38 +67,174 @@
       <div class="mini-player" v-show="!fullScreen" @click="toggleFullScreen">
         <div class="cd-wrapper">
           <div class="cd">
-            <img class="image" :src="currentSong.pic" :alt="currentSong.name" />
+            <img class="image" :class="cdCls" :src="currentSong.pic" :alt="currentSong.name" />
           </div>
         </div>
         <div class="text">
           <h2 class="name">{{ currentSong.name }}</h2>
           <p class="desc">{{ currentSong.singer }}</p>
         </div>
+        <div class="control">
+          <base-progress-circle :diameter="diameter" :percent="percent">
+            <i @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
+          </base-progress-circle>
+        </div>
+        <div class="control">
+          <i class="icon-playlist"></i>
+        </div>
       </div>
     </transition>
+    <audio
+      ref="audio"
+      :src="currentSong.url"
+      @loadedmetadata="handleLoaded"
+      @play="handlePlay"
+      @timeupdate="handleTimeUpdate"
+      @ended="handleEnded"
+      @error="handleError"
+    />
   </div>
 </template>
 
 <script>
+import BaseProgressBar from '@/components/base-progress-bar';
+import BaseProgressCircle from '@/components/base-progress-circle';
 import animations from 'create-keyframe-animation';
 import { mapGetters, mapMutations } from 'vuex';
+import { PlayMode } from '@/common/js/config';
+import { shuffle } from '@/common/js/utils';
 
 export default {
   name: 'vmPlayer',
+  data() {
+    return {
+      disabled: true,
+      currentTime: 0,
+      diameter: 32
+    }
+  },
   computed: {
+    iconPlay() {
+      return this.playing ? 'icon-play' : 'icon-pause';
+    },
+    miniIcon() {
+      return this.playing ? 'icon-pause-mini' : 'icon-play-mini';
+    },
+    cdCls() {
+      return this.playing && !this.disabled ? 'play' : 'pause';
+    },
+    modeCls() {
+      return this.playMode === PlayMode.sequence ? 'icon-sequence' : this.playMode === PlayMode.random ? 'icon-random' : 'icon-loop';
+    },
+    percent() {
+      return this.currentTime / this.currentSong.duration;
+    },
     ...mapGetters([
+      'playList',
       'sequenceList',
+      'currentIndex',
       'currentSong',
-      'fullScreen'
+      'fullScreen',
+      'playMode',
+      'playing'
     ])
+  },
+  watch: {
+    currentSong(newVal, oldVal) {
+      if (!newVal?.id || newVal.id === oldVal.id) {
+        return;
+      }
+      this.disabled = true;
+    }
   },
   methods: {
     toggleFullScreen() {
       this.setFullScreen(!this.fullScreen);
     },
+    togglePlaying() {
+      if (this.disabled) {
+        return;
+      }
+      if (this.playing) {
+        this.$refs.audio.pause();
+      } else {
+        this.$refs.audio.play();
+      }
+      this.setPlaying(!this.playing);
+    },
+    handleChange(percent) {
+      this.$refs.audio.currentTime = percent * this.currentSong.duration;
+      if (!this.playing) {
+        this.setPlaying(true);
+      }
+    },
+    handlePrev() {
+      if (this.disabled) {
+        return;
+      }
+      let index = this.currentIndex;
+      if (index === 0) {
+        index = this.playList.length - 1;
+      } else {
+        index--;
+      }
+      this.setCurrentIndex(index);
+      if (!this.playing) {
+        this.setPlaying(true);
+      }
+    },
+    handleNext() {
+      if (this.disabled) {
+        return;
+      }
+      let index = this.currentIndex;
+      if (index === this.playList.length - 1) {
+        index = 0;
+      } else {
+        index++;
+      }
+      this.setCurrentIndex(index);
+      if (!this.playing) {
+        this.setPlaying(true);
+      }
+    },
+    changeMode() {
+      const mode = (this.playMode + 1) % 3;
+      if (mode === PlayMode.random) {
+        const randomList = shuffle(this.sequenceList);
+        const currentIndex = randomList.findIndex(item => item.id === this.currentSong.id);
+        this.setPlayList(randomList);
+        this.setCurrentIndex(currentIndex);
+      }
+      this.setPlayMode(mode);
+    },
+    handleLoaded() {
+      this.disabled = false;
+      if (this.playing) {
+        this.$refs.audio.play();
+      } else {
+        this.$refs.audio.pause();
+      }
+    },
+    handlePlay(e) {
+      console.log(e);
+    },
+    handleTimeUpdate(e) {
+      this.currentTime = e.target.currentTime;
+    },
+    handleEnded() {
+      if (this.playMode === PlayMode.loop) {
+        this.$refs.audio.currentTime = 0;
+        this.$refs.audio.play();
+      } else {
+        this.handleNext();
+      }
+    },
+    handleError() {
+      this.disabled = false;
+    },
     enter(el, done) {
       const { x, y, scale } = this._getPosAndScale();
-      console.log( x, y, scale)
       animations.registerAnimation({
         name: 'move',
         animation: {
@@ -132,6 +270,11 @@ export default {
       this.$refs.cd.style.transition = '';
       this.$refs.cd.style.transform = '';
     },
+    _format(time) {
+      const minute = Math.floor(time / 60);
+      const second = Math.floor(time % 60);
+      return `${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+    },
     _getPosAndScale() {
       const width = window.innerWidth * 0.8;
       const x = 20 + 20 - (window.innerWidth / 2);
@@ -144,8 +287,16 @@ export default {
       };
     },
     ...mapMutations([
-      'setFullScreen'
+      'setFullScreen',
+      'setCurrentIndex',
+      'setPlayList',
+      'setPlayMode',
+      'setPlaying'
     ])
+  },
+  components: {
+    BaseProgressBar,
+    BaseProgressCircle
   }
 }
 </script>
@@ -233,6 +384,11 @@ export default {
             border-radius: 50%
             border: 10px solid rgba(255, 255, 255, 0.1)
             box-sizing: border-box
+            animation: rotate 20s linear infinite
+            &.play
+              animation-play-state: running
+            &.pause
+              animation-play-state: paused
     .footer
       position: absolute
       right: 0
@@ -258,11 +414,15 @@ export default {
         display: flex
         justify-content: center
         align-items: center
-        margin: 20px 0
+        margin: 20px auto
+        width: 80%
         font-size: var(--font-size-small)
-        .time
-          &:not(:last-child)
-            margin-right: 6px
+        .progress-bar-wrapper
+          flex: 1
+        .time-l
+          margin-right: 6px
+        .time-r
+          margin-left: 6px
       .operators
         display: flex
         justify-content: space-evenly
@@ -271,7 +431,7 @@ export default {
         .i-wrapper
           flex: 1
           color: var(--color-theme)
-          &.disable
+          &.disabled
             color: var(--color-theme-d)
           .icon
             font-size: 30px
@@ -310,13 +470,18 @@ export default {
           width: 100%
           height: 100%
           border-radius: 50%
+          animation: rotate 20s linear infinite
+          &.play
+            animation-play-state: running
+          &.pause
+            animation-play-state: paused
     .text
       flex: 1
       margin-left: 10px
-      line-height: 1.25rem
+      line-height: 20px
       min-height: 0
       .name
-        margin-bottom: 0.125rem
+        margin-bottom: 2px
         font-size: var(--font-size-medium)
         color: var(--color-text)
         ellipsis()
@@ -324,4 +489,20 @@ export default {
         font-size: var(--font-size-small)
         color: var(--color-text-d)
         ellipsis()
+    .control
+      flex: 0 0 30px
+      margin: 0 10px
+      .icon-play-mini, .icon-pause-mini, .icon-playlist
+        font-size: 30px
+        color: var(--color-theme-d)
+      .icon-mini
+        position: absolute
+        left: 0
+        font-size: 32px
+
+  @keyframes rotate
+    from
+      transform: rotate(0)
+    to
+      transform: rotate(360deg)
 </style>

@@ -12,14 +12,9 @@
 <script>
 export default {
   name: 'baseButton',
-  mounted() {
-    // if (!this.$listeners.click) {
-    //   throw new Error('click event must be listened!');
-    // }
-  },
   methods: {
     handleClick() {
-
+      this.$emit('click');
     }
   }
 }
