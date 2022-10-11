@@ -28,7 +28,21 @@
             <p class="lyric"></p>
           </div>
           <div class="middle-r">
-
+            <base-scroll class="lyric-wrapper" ref="lyric" :data="lyric?.lines || []">
+              <ul class="lyric-ul">
+                <template v-if="lyric">
+                  <li
+                    class="lyric-li"
+                    :class="{active: lineNum === index}"
+                    ref="lyricLine"
+                    v-for="(line, index) in lyric?.lines"
+                    :key="index"
+                  >
+                    {{line.txt}}
+                  </li>
+                </template>
+              </ul>
+            </base-scroll>
           </div>
         </div>
         <div class="footer">
@@ -88,7 +102,6 @@
       ref="audio"
       :src="currentSong.url"
       @loadedmetadata="handleLoaded"
-      @play="handlePlay"
       @timeupdate="handleTimeUpdate"
       @ended="handleEnded"
       @error="handleError"
@@ -97,20 +110,32 @@
 </template>
 
 <script>
+import Lyric from 'lyric-parser';
+import BaseScroll from '@/components/base-scroll';
 import BaseProgressBar from '@/components/base-progress-bar';
 import BaseProgressCircle from '@/components/base-progress-circle';
 import animations from 'create-keyframe-animation';
 import { mapGetters, mapMutations } from 'vuex';
 import { PlayMode } from '@/common/js/config';
 import { shuffle } from '@/common/js/utils';
+import { getLyric } from '@/services/song';
 
 export default {
   name: 'vmPlayer',
   data() {
     return {
+      // 控制组件是否禁用
       disabled: true,
+      // 音频当前播放时长
       currentTime: 0,
-      diameter: 32
+      // 迷你播放器进度条的直径
+      diameter: 32,
+      // Lyric实例
+      lyric: null,
+      // 当前歌词
+      txt: '',
+      // 当前歌词行
+      lineNum: 0
     }
   },
   computed: {
@@ -145,9 +170,43 @@ export default {
         return;
       }
       this.disabled = true;
+      this.txt = '';
+      this.lineNum = 0;
+      this.getLyric();
+    },
+    playing(newVal) {
+      const audio = this.$refs.audio;
+      newVal ? audio.play() : audio.pause();
     }
   },
   methods: {
+    getLyric() {
+      this.lyric?.stop();
+      getLyric(this.currentSong).then(result => {
+        this.currentSong.lyric = result;
+
+        this.lyric = new Lyric(result, this.handleLyric);
+        if (this.playing) {
+          this.lyric.seek(this.currentTime);
+        }
+      }).catch(() => {
+        this.lyric = null;
+        this.txt = '';
+        this.lineNum = 0;
+      });
+    },
+    handleLyric({ txt, lineNum }) {
+      if (!this.$refs.lyricLine) {
+        return;
+      }
+      this.txt = txt;
+      this.lineNum = lineNum;
+      if (lineNum > 5) {
+        this.$refs.lyric.scrollToElement(this.$refs.lyricLine[lineNum - 5], 1000);
+      } else {
+        this.$refs.lyric.scrollTo(0, 0, 1000);
+      }
+    },
     toggleFullScreen() {
       this.setFullScreen(!this.fullScreen);
     },
@@ -155,17 +214,17 @@ export default {
       if (this.disabled) {
         return;
       }
-      if (this.playing) {
-        this.$refs.audio.pause();
-      } else {
-        this.$refs.audio.play();
-      }
+
+      this.lyric?.togglePlay();
       this.setPlaying(!this.playing);
     },
     handleChange(percent) {
-      this.$refs.audio.currentTime = percent * this.currentSong.duration;
+      const currentTime = percent * this.currentSong.duration;
+      this.$refs.audio.currentTime = currentTime;
+      this.lyric?.seek(currentTime * 1000);
+
       if (!this.playing) {
-        this.setPlaying(true);
+        this.togglePlaying();
       }
     },
     handlePrev() {
@@ -215,9 +274,6 @@ export default {
       } else {
         this.$refs.audio.pause();
       }
-    },
-    handlePlay(e) {
-      console.log(e);
     },
     handleTimeUpdate(e) {
       this.currentTime = e.target.currentTime;
@@ -295,6 +351,7 @@ export default {
     ])
   },
   components: {
+    BaseScroll,
     BaseProgressBar,
     BaseProgressCircle
   }
@@ -389,6 +446,19 @@ export default {
               animation-play-state: running
             &.pause
               animation-play-state: paused
+      .middle-l
+        display: none
+      .lyric-wrapper
+        height: 100%
+        overflow: hidden
+        .lyric-li
+          font-size: var(--font-size-medium)
+          line-height: 2rem
+          text-align: center
+          color: var(--color-text-l)
+          ellipsis()
+          &.active
+            color: var(--color-text)
     .footer
       position: absolute
       right: 0

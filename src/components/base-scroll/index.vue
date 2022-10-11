@@ -60,6 +60,10 @@ export default {
     },
     scrollToElement(el, time) {
       this.scroll.scrollToElement(el, time);
+    },
+    // 滚动到指定的位置
+    scrollTo(x, y, time) {
+      this.scroll.scrollTo(x, y, time);
     }
   }
 }

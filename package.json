@@ -17,6 +17,7 @@
     "better-scroll": "^1.15.2",
     "create-keyframe-animation": "^0.1.0",
     "jsonp": "^0.2.1",
+    "lyric-parser": "^1.0.1",
     "vue": "^2.7.10",
     "vue-lazyload": "^1.3.4",
     "vue-router": "^3.6.5",
