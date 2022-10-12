@@ -40,10 +40,12 @@ import BaseScroll from '@/components/base-scroll';
 import BaseSlide from '@/components/base-slide';
 import BaseLoading from '@/components/base-loading';
 import { getRecommend } from '@/services/recommend';
+import { playListMixin } from '@/common/js/mixin';
 import { mapMutations } from 'vuex';
 
 export default {
   name: 'vmRecommend',
+  mixins: [playListMixin],
   data() {
     return {
       albums: [],
@@ -59,6 +61,11 @@ export default {
     this._getRecommend();
   },
   methods: {
+    handlePlayList(list) {
+      const height = list?.length > 0 ? '60px' : 0;
+      this.$refs.scroll.$el.style.height = `calc(100% - ${height})`;
+      this.$refs.scroll.refresh();
+    },
     async _getRecommend() {
       const { albums, sliders } = await getRecommend();
       this.albums = albums;

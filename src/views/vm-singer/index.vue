@@ -60,6 +60,7 @@ import Singer from '@/common/js/singer';
 import { getData } from '@/common/js/dom';
 import { getSinger } from '@/services/singer';
 import { ERR_OK } from '@/services/config';
+import { playListMixin } from '@/common/js/mixin';
 import { mapMutations } from 'vuex';
 
 const HOT_KEY = '热';
@@ -68,6 +69,7 @@ const TOP_HEIGHT = 20;
 
 export default {
   name: 'vmSinger',
+  mixins: [playListMixin],
   data() {
     return {
       // 滚动高度
@@ -121,6 +123,11 @@ export default {
     this.getSinger();
   },
   methods: {
+    handlePlayList(list) {
+      const height = list?.length > 0 ? '60px' : 0;
+      this.$refs.scroll.$el.style.height = `calc(100% - ${height})`;
+      this.$refs.scroll.refresh();
+    },
     async getSinger() {
       const { code, data } = await getSinger();
       if (code === ERR_OK) {

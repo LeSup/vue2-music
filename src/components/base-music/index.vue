@@ -14,6 +14,7 @@
     </div>
     <base-scroll
       class="list-wrapper"
+      ref="scroll"
       @scroll="handleScroll"
       :data="data"
       :probeType="3"
@@ -31,12 +32,14 @@ import BaseButton from '@/components/base-button';
 import BaseList from '@/components/base-list';
 import BaseLoading from '@/components/base-loading';
 import BaseScroll from '@/components/base-scroll';
+import { playListMixin } from '@/common/js/mixin';
 import { mapActions } from 'vuex';
 
 const MAX_BLUR = 10;
 
 export default {
   name: 'baseMusic',
+  mixins: [playListMixin],
   props: {
     title: {
       type: String,
@@ -79,6 +82,11 @@ export default {
     this.maxScrollHeight = this.wallHeight - headerRect.height;
   },
   methods: {
+    handlePlayList(list) {
+      const height = list?.length > 0 ? '60px' : 0;
+      this.$refs.scroll.$el.style.bottom = height;
+      this.$refs.scroll.refresh();
+    },
     goBack() {
       this.$router.go(-1);
     },

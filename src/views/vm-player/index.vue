@@ -18,16 +18,23 @@
           <h1 class="title">{{currentSong.name}}</h1>
           <h2 class="subTitle">{{currentSong.singer}}</h2>
         </div>
-        <div class="middle">
-          <div class="middle-l">
+        <div
+          class="middle"
+          @touchstart="touchStart"
+          @touchmove="touchMove"
+          @touchend="touchEnd"
+        >
+          <div class="middle-l" ref="middleL">
             <div class="cd-wrapper">
               <div class="cd" ref="cd">
                 <img class="image" :class="cdCls" :src="currentSong.pic" :alt="currentSong.name" />
               </div>
             </div>
-            <p class="lyric"></p>
+            <div class="playing-lyric-wrapper">
+              <p class="playing-lyric">{{txt}}</p>
+            </div>
           </div>
-          <div class="middle-r">
+          <div class="middle-r" ref="middleR">
             <base-scroll class="lyric-wrapper" ref="lyric" :data="lyric?.lines || []">
               <ul class="lyric-ul">
                 <template v-if="lyric">
@@ -42,13 +49,16 @@
                   </li>
                 </template>
               </ul>
+              <div class="pure-music" v-show="pureMusicLyric">
+                <p>{{pureMusicLyric}}</p>
+              </div>
             </base-scroll>
           </div>
         </div>
         <div class="footer">
           <div class="dots">
-            <span class="dot active"></span>
-            <span class="dot"></span>
+            <span class="dot" :class="{active: active === 'cd'}"></span>
+            <span class="dot" :class="{active: active === 'lyric'}"></span>
           </div>
           <div class="progress-wrapper">
             <div class="time time-l">{{ _format(currentTime) }}</div>
@@ -135,7 +145,8 @@ export default {
       // 当前歌词
       txt: '',
       // 当前歌词行
-      lineNum: 0
+      lineNum: 0,
+      active: 'cd',
     }
   },
   computed: {
@@ -153,6 +164,13 @@ export default {
     },
     percent() {
       return this.currentTime / this.currentSong.duration;
+    },
+    pureMusicLyric() {
+      if (this.lyric?.lines?.length === 0) {
+        return this.lyric.lrc.replace(/\[\d{2}:\d{2}:\d{2}\]/, '');
+      } else {
+        return '';
+      }
     },
     ...mapGetters([
       'playList',
@@ -172,19 +190,26 @@ export default {
       this.disabled = true;
       this.txt = '';
       this.lineNum = 0;
-      this.getLyric();
+      this.$nextTick(() => {
+        this.getLyric();
+      });
     },
     playing(newVal) {
-      const audio = this.$refs.audio;
-      newVal ? audio.play() : audio.pause();
+      this.$nextTick(() => {
+        const audio = this.$refs.audio;
+        newVal ? audio.play() : audio.pause();
+      });
     }
+  },
+  created() {
+    this.touch = {};
   },
   methods: {
     getLyric() {
-      this.lyric?.stop();
       getLyric(this.currentSong).then(result => {
         this.currentSong.lyric = result;
 
+        this.lyric?.stop();
         this.lyric = new Lyric(result, this.handleLyric);
         if (this.playing) {
           this.lyric.seek(this.currentTime);
@@ -202,9 +227,9 @@ export default {
       this.txt = txt;
       this.lineNum = lineNum;
       if (lineNum > 5) {
-        this.$refs.lyric.scrollToElement(this.$refs.lyricLine[lineNum - 5], 1000);
+        this.$refs?.lyric.scrollToElement(this.$refs.lyricLine[lineNum - 5], 1000);
       } else {
-        this.$refs.lyric.scrollTo(0, 0, 1000);
+        this.$refs?.lyric.scrollTo(0, 0, 1000);
       }
     },
     toggleFullScreen() {
@@ -288,6 +313,78 @@ export default {
     },
     handleError() {
       this.disabled = false;
+    },
+    touchStart(e) {
+      this.touch = {
+        initiated: true,
+        startX: e.touches[0].pageX,
+        startY: e.touches[0].pageY
+      };
+    },
+    touchMove(e) {
+      if (!this.touch.initiated) {
+        return;
+      }
+
+      const deltaX = e.touches[0].pageX - this.touch.startX;
+      const deltaY = e.touches[0].pageY - this.touch.startY;
+      if (
+        Math.abs(deltaX) < Math.abs(deltaY) ||
+        (this.active === 'cd' && deltaX > 0)
+      ) {
+        this.touch.initiated = false;
+        return;
+      }
+
+      const clientWidth = document.documentElement.clientWidth;
+
+      const left = this.active === 'cd' ? 0 : -clientWidth;
+      const translateX = Math.min(0, Math.max(-clientWidth, left + deltaX));
+      this.touch.percent = Math.abs((left + deltaX) / clientWidth);
+
+      this.$refs.middleL.style.opacity = 1 - this.touch.percent;
+      this.$refs.middleL.style.transitionDuration = '0ms';
+      this.$refs.middleR.style.transform = `translateX(${translateX}px)`;
+      this.$refs.middleR.style.transitionDuration = '0ms';
+    },
+    touchEnd() {
+      if (!this.touch.initiated) {
+        return;
+      }
+
+      const clientWidth = document.documentElement.clientWidth;
+
+      let active;
+      let opacity;
+      let translateX;
+      if (this.active === 'cd') {
+        if (this.touch.percent >= 0.1) {
+          translateX = -clientWidth;
+          opacity = 0;
+          active = 'lyric';
+        } else {
+          translateX = 0;
+          opacity = 1;
+          active = 'cd';
+        }
+      } else if (this.active === 'lyric') {
+        if (this.touch.percent <= 0.9) {
+          translateX = 0;
+          opacity = 1;
+          active = 'cd';
+        } else {
+          translateX = -clientWidth;
+          opacity = 0;
+          active = 'lyric';
+        }
+      }
+
+      this.$refs.middleL.style.opacity = opacity;
+      this.$refs.middleL.style.transitionDuration = '300ms';
+      this.$refs.middleR.style.transform = `translateX(${translateX}px)`;
+      this.$refs.middleR.style.transitionDuration = '300ms';
+      this.active = active;
+      this.touch.initiated = false;
     },
     enter(el, done) {
       const { x, y, scale } = this._getPosAndScale();
@@ -391,6 +488,7 @@ export default {
       .bg
         width: 100%
         height: 100%
+        object-fit: cover
     .header
       position: relative
       padding: 0 2.5rem
@@ -419,11 +517,14 @@ export default {
       top: 80px
       bottom: 170px
       width: 100%
+      white-space: nowrap
       font-size: 0
       .middle-l, .middle-r
         display: inline-block
         width: 100%
         height: 100%
+        vertical-align: top
+        transition-property: transform
       .cd-wrapper
         position: relative
         margin: 0 auto
@@ -446,19 +547,30 @@ export default {
               animation-play-state: running
             &.pause
               animation-play-state: paused
-      .middle-l
-        display: none
+      .playing-lyric-wrapper
+        margin: 1.875rem 15% 0
+        text-align: center
+        overflow: hidden
+        .playing-lyric
+          font-size: var(--font-size-medium)
+          list-style: 1.25rem
+          color: var(--color-text-l)
       .lyric-wrapper
         height: 100%
+        text-align: center
         overflow: hidden
         .lyric-li
           font-size: var(--font-size-medium)
           line-height: 2rem
-          text-align: center
           color: var(--color-text-l)
           ellipsis()
           &.active
             color: var(--color-text)
+        .pure-music
+          padding-top: 50%
+          line-height: 2rem
+          color: var(--color-text-l)
+          font-size: var(--font-size-medium)
     .footer
       position: absolute
       right: 0
@@ -527,9 +639,9 @@ export default {
     background-color: var(--color-highlight-background)
     overflow: hidden
     &.mini-enter-active, &.mini-leave-active
-        transition: opacity 0.4s
-      &.mini-enter, &.mini-leave-to
-        opacity: 0
+      transition: opacity 0.4s
+    &.mini-enter, &.mini-leave-to
+      opacity: 0
     .cd-wrapper
       flex: 0 0 40px
       margin-left: 20px

@@ -6,7 +6,6 @@ export function addClass(el, cls) {
   if (hasClass(el, cls)) {
     return;
   }
-  console.log(el, cls);
   el.classList.add(cls);
 }
 
@@ -14,7 +13,6 @@ export function removeClass(el, cls) {
   if (!hasClass(el, cls)) {
     return;
   }
-  console.log(el, cls);
   el.classList.remove(cls);
 }
 

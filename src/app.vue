@@ -1,5 +1,5 @@
 <template>
-  <div id="vm-music">
+  <div id="vm-music" @touchmove.prevent>
     <vm-header></vm-header>
     <vm-nav></vm-nav>
     <keep-alive>

@@ -1,6 +1,6 @@
 <template>
   <div class="vm-rank">
-    <base-scroll class="vm-rank-view" :data="topList">
+    <base-scroll class="vm-rank-view" ref="scroll" :data="topList">
       <ul class="rank-ul">
         <li class="rank-li" @click="handleClick(item)" v-for="item in topList" :key="item.id">
           <div class="img-wrapper">
@@ -26,10 +26,12 @@
 import BaseScroll from '@/components/base-scroll';
 import BaseLoading from '@/components/base-loading';
 import { getTopList } from '@/services/top-list';
+import { playListMixin } from '@/common/js/mixin';
 import { mapMutations } from 'vuex';
 
 export default {
   name: 'vmRank',
+  mixins: [playListMixin],
   data() {
     return {
       topList: []
@@ -39,6 +41,11 @@ export default {
     this.getTopList();
   },
   methods: {
+    handlePlayList(list) {
+      const height = list?.length > 0 ? '60px' : 0;
+      this.$refs.scroll.$el.style.height = `calc(100% - ${height})`;
+      this.$refs.scroll.refresh();
+    },
     async getTopList() {
       const { topList } = await getTopList();
       this.topList = topList;
