@@ -13,3 +13,12 @@ backdrop-filter-blur($pixel)
   -webkit-backdrop-filter: blur($pixel)
   backdrop-filter: blur($pixel)
 
+spread-area()
+  position: relative
+  &:before
+    content: ''
+    position: absolute
+    top: -0.625rem
+    right: -0.625rem
+    bottom: -0.625rem
+    left: -0.625rem
