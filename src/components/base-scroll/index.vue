@@ -42,6 +42,7 @@ export default {
         return;
       }
       this.scroll = new BScroll(this.$refs.wrapper, {
+        pullUpLoad: true,
         probeType: this.probeType,
         eventPassthrough: this.direction === DIR_V ? DIR_H : DIR_V
       });
@@ -49,6 +50,15 @@ export default {
       if (this.$listeners.scroll) {
         this.scroll.on('scroll', pos => {
           this.$emit('scroll', pos);
+        });
+      }
+
+      if (this.$listeners.scrollEnd) {
+        this.scroll.on('scrollEnd', (pos) => {
+          // 距离底部50px时触发
+          if (this.scroll.y < this.scroll.maxScrollY + 50) {
+            this.$emit('scrollEnd', pos);
+          }
         });
       }
     },

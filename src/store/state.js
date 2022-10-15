@@ -1,4 +1,5 @@
 import { PlayMode } from '@/common/js/config';
+import { loadSearch } from '@/common/js/cache';
 
 export default {
   album: {},
@@ -9,5 +10,6 @@ export default {
   playMode: PlayMode.sequence,
   playing: false,
   currentIndex: -1,
-  fullScreen: false
+  fullScreen: false,
+  searchHistory: loadSearch()
 }

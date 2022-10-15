@@ -25,5 +25,8 @@ export default {
   },
   setFullScreen(state, fullScreen) {
     state.fullScreen = fullScreen;
+  },
+  setSearchHistory(state, list) {
+    state.searchHistory = list;
   }
 }

@@ -16,6 +16,7 @@
     "axios-retry": "^3.3.1",
     "better-scroll": "^1.15.2",
     "create-keyframe-animation": "^0.1.0",
+    "good-storage": "^1.1.1",
     "jsonp": "^0.2.1",
     "lyric-parser": "^1.0.1",
     "vue": "^2.7.10",

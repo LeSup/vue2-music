@@ -7,12 +7,10 @@
 </template>
 
 <script>
+import { debounce } from '@/common/js/utils';
+
 export default {
   name: 'baseSearchBox',
-  // model: {
-  //   prop: 'value',
-  //   event: 'input'
-  // },
   props: {
     value: {
       type: String,
@@ -34,9 +32,9 @@ export default {
     }
   },
   mounted() {
-    this.$watch('text', () => {
+    this.$watch('text', debounce(() => {
       this.$emit('input', this.text);
-    });
+    }));
   },
   methods: {
     click() {
