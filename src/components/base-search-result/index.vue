@@ -10,7 +10,7 @@
         <i class="icon" :class="getIconCls(item)"></i>
         <span class="name">{{item.name}}</span>
       </li>
-      <li class="load-more" v-show="hasMore && !loading">
+      <li class="load-more" v-show="hasMore">
         上拉加载更多
       </li>
     </ul>

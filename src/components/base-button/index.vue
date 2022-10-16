@@ -1,6 +1,6 @@
 <template>
   <div class="base-button" @click.stop="handleClick">
-    <slot name="text">
+    <slot name="icon">
       <i class="icon icon-play"></i>
     </slot>
     <slot name="text">
@@ -28,11 +28,11 @@ export default {
     margin: 0 auto
     width: 8.5rem
     height: 1.875rem
-    color: var(--color-text)
+    color: var(--color-text-l)
     border: 0.0625rem solid
     border-radius: 1rem
     .icon
-      font-size: var(--font-size-medium-x)
+      font-size: var(--font-size-medium)
     .text
       margin-left: 0.5rem
       font-size: var(--font-size-small)

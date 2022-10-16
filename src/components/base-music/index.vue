@@ -83,7 +83,7 @@ export default {
   },
   methods: {
     handlePlayList(list) {
-      const height = list?.length > 0 ? '60px' : 0;
+      const height = list?.length > 0 ? '60px' : '0px';
       this.$refs.scroll.$el.style.bottom = height;
       this.$refs.scroll.refresh();
     },

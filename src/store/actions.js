@@ -32,36 +32,67 @@ export function insertSong({ commit, state }, song) {
 
   let currentIndex = state.currentIndex;
   let currentSong = playList[currentIndex];
-  let playMode = state.playMode;
 
   let fPIdx = playList.findIndex(i => i.id === song.id);
   playList.splice(currentIndex + 1, 0, song);
   // 1.没找到：当前下标后插入歌曲，并下标加一
   // 2.找到了，并比当前下标靠前：删除存在项，下标不动
-  // 3.找到了，并比当前下标靠后：删除存在项，下标不动
+  // 3.找到了，并比当前下标靠后：删除存在项，下标加一
   if (fPIdx === -1) {
     currentIndex++;
   } else {
-    playList.splice(fPIdx, 1);
+    if (currentIndex <= fPIdx) {
+      playList.splice(fPIdx++, 1);
+    } else {
+      playList.splice(fPIdx, 1);
+    }
   }
 
   let sIdx = sequenceList.findIndex(i => i.id === currentSong.id);
   let fSIdx = sequenceList.findIndex(i => i.id === song.id);
-  sequenceList.splice(sIdx, 0, song);
-  if (fPIdx > -1) {
-    sequenceList.splice(fSIdx, 1);
-  }
-
-  if (playList.length === 1) {
-    playMode = PlayMode.loop;
+  sequenceList.splice(sIdx + 1, 0, song);
+  if (fSIdx > -1) {
+    if (sIdx <= fSIdx) {
+      sequenceList.splice(fSIdx++, 1);
+    } else {
+      sequenceList.splice(fSIdx, 1);
+    }
   }
 
   commit('setPlayList', playList);
   commit('setSequenceList', sequenceList);
-  commit('setPlayMode', playMode);
   commit('setPlaying', true);
   commit('setCurrentIndex', currentIndex);
   commit('setFullScreen', true);
+}
+
+export function removeSong({ commit, state }, song) {
+  const playList = state.playList.slice();
+  const sequenceList = state.sequenceList.slice();
+
+  let currentIndex = state.currentIndex;
+
+  let fPIdx = playList.findIndex(i => i.id === song.id);
+  playList.splice(fPIdx, 1);
+  if (fPIdx < currentIndex || currentIndex === playList.length - 1) {
+    currentIndex--;
+  }
+
+  let fSIdx = sequenceList.findIndex(i => i.id === song.id);
+  sequenceList.splice(fSIdx, 1);
+
+  commit('setPlayList', playList);
+  commit('setSequenceList', sequenceList);
+  commit('setCurrentIndex', currentIndex);
+  commit('setPlaying', playList.length > 0);
+}
+
+export function clearSongList({ commit }) {
+  commit('setPlayList', []);
+  commit('setSequenceList', []);
+  commit('setPlaying', false);
+  commit('setCurrentIndex', -1);
+  commit('setFullScreen', false);
 }
 
 /* 搜索历史——开始 */

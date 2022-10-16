@@ -29,6 +29,7 @@
       </base-scroll>
       <base-search-result ref="result" v-if="search" :value="search" @click="clickSearchHistory"></base-search-result>
     </div>
+    <base-confirm ref="confirm" text="是否清空所有搜索历史" @ok="confirm"></base-confirm>
     <router-view></router-view>
   </div>
 </template>
@@ -38,6 +39,7 @@ import BaseScroll from '@/components/base-scroll';
 import BaseSearchBox from '@/components/base-search-box';
 import BaseDeleteList from '@/components/base-delete-list';
 import BaseSearchResult from '@/components/base-search-result';
+import BaseConfirm from '@/components/base-confirm';
 import { mapActions, mapGetters } from 'vuex';
 import { playListMixin } from '@/common/js/mixin';
 import { getHotKeys } from '@/services/search';
@@ -68,7 +70,7 @@ export default {
       this.hotKeys = hotKeys;
     },
     handlePlayList(list) {
-      const bottom = list?.length ? '60px' : 0;
+      const bottom = list?.length ? '60px' : '0px';
       this.$refs.content.style.height = `calc(100vh - 9.5rem - ${bottom})`;
       this.$refs?.shortcut?.refresh();
       this.$refs?.result?.refresh();
@@ -80,6 +82,9 @@ export default {
       this.search = value;
     },
     clearHistory() {
+      this.$refs.confirm.show();
+    },
+    confirm() {
       this.clearSearchHistory();
     },
     clickSearchHistory() {
@@ -98,7 +103,8 @@ export default {
     BaseScroll,
     BaseSearchBox,
     BaseDeleteList,
-    BaseSearchResult
+    BaseSearchResult,
+    BaseConfirm
   }
 }
 </script>

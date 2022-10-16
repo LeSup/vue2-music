@@ -103,11 +103,12 @@
             <i @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
           </base-progress-circle>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlayList">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <vm-play-list ref="playList"></vm-play-list>
     <audio
       ref="audio"
       :src="currentSong.url"
@@ -124,14 +125,16 @@ import Lyric from 'lyric-parser';
 import BaseScroll from '@/components/base-scroll';
 import BaseProgressBar from '@/components/base-progress-bar';
 import BaseProgressCircle from '@/components/base-progress-circle';
+import VmPlayList from '@/views/vm-play-list';
 import animations from 'create-keyframe-animation';
 import { mapGetters, mapMutations } from 'vuex';
 import { PlayMode } from '@/common/js/config';
-import { shuffle } from '@/common/js/utils';
 import { getLyric } from '@/services/song';
+import { playerMixin } from '@/common/js/mixin';
 
 export default {
   name: 'vmPlayer',
+  mixins: [playerMixin],
   data() {
     return {
       // 控制组件是否禁用
@@ -159,9 +162,6 @@ export default {
     cdCls() {
       return this.playing && !this.disabled ? 'play' : 'pause';
     },
-    modeCls() {
-      return this.playMode === PlayMode.sequence ? 'icon-sequence' : this.playMode === PlayMode.random ? 'icon-random' : 'icon-loop';
-    },
     percent() {
       return this.currentTime / this.currentSong.duration;
     },
@@ -174,11 +174,8 @@ export default {
     },
     ...mapGetters([
       'playList',
-      'sequenceList',
       'currentIndex',
-      'currentSong',
       'fullScreen',
-      'playMode',
       'playing'
     ])
   },
@@ -196,6 +193,10 @@ export default {
     },
     playing(newVal) {
       this.$nextTick(() => {
+        // 处理音频没准备好就播放的bug
+        if (this.disabled) {
+          return;
+        }
         const audio = this.$refs.audio;
         newVal ? audio.play() : audio.pause();
       });
@@ -211,7 +212,7 @@ export default {
 
         this.lyric?.stop();
         this.lyric = new Lyric(result, this.handleLyric);
-        if (this.playing) {
+        if (this.playing && !this.disabled) {
           this.lyric.seek(this.currentTime);
         }
       }).catch(() => {
@@ -231,6 +232,9 @@ export default {
       } else {
         this.$refs?.lyric.scrollTo(0, 0, 1000);
       }
+    },
+    showPlayList() {
+      this.$refs.playList.show();
     },
     toggleFullScreen() {
       this.setFullScreen(!this.fullScreen);
@@ -282,16 +286,6 @@ export default {
         this.setPlaying(true);
       }
     },
-    changeMode() {
-      const mode = (this.playMode + 1) % 3;
-      if (mode === PlayMode.random) {
-        const randomList = shuffle(this.sequenceList);
-        const currentIndex = randomList.findIndex(item => item.id === this.currentSong.id);
-        this.setPlayList(randomList);
-        this.setCurrentIndex(currentIndex);
-      }
-      this.setPlayMode(mode);
-    },
     handleLoaded() {
       this.disabled = false;
       if (this.playing) {
@@ -304,9 +298,10 @@ export default {
       this.currentTime = e.target.currentTime;
     },
     handleEnded() {
-      if (this.playMode === PlayMode.loop) {
+      if (this.playMode === PlayMode.loop || this.playList.length === 1) {
         this.$refs.audio.currentTime = 0;
         this.$refs.audio.play();
+        this.getLyric();
       } else {
         this.handleNext();
       }
@@ -441,16 +436,14 @@ export default {
     },
     ...mapMutations([
       'setFullScreen',
-      'setCurrentIndex',
-      'setPlayList',
-      'setPlayMode',
       'setPlaying'
     ])
   },
   components: {
     BaseScroll,
     BaseProgressBar,
-    BaseProgressCircle
+    BaseProgressCircle,
+    VmPlayList
   }
 }
 </script>
@@ -661,7 +654,7 @@ export default {
       flex: 1
       margin-left: 10px
       line-height: 20px
-      min-height: 0
+      min-width: 0
       .name
         margin-bottom: 2px
         font-size: var(--font-size-medium)
