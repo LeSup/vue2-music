@@ -9,5 +9,6 @@ export default {
   currentIndex: state => state.currentIndex,
   currentSong: state => state.playList[state.currentIndex] || {},
   fullScreen: state => state.fullScreen,
-  searchHistory: state => state.searchHistory
+  searchHistory: state => state.searchHistory,
+  playHistory: state => state.playHistory
 };

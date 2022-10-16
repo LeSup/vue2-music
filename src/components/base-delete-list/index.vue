@@ -35,6 +35,7 @@ export default {
   @import '~common/stylus/mixin'
 
   .delete-list
+    padding: 1.25rem
     .delete-item
       display: flex
       align-items: center

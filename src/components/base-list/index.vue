@@ -9,7 +9,7 @@
       <div class="serial-number" v-if="rank">
         <span class="inner" :class="getImgCls(index)">{{index + 1}}</span>
       </div>
-      <div class="content">
+      <div class="list-content">
         <h2 class="title">{{item.name}}</h2>
         <p class="desc">{{item.singer}}-{{item.album}}</p>
       </div>
@@ -78,7 +78,7 @@ export default {
         bg-img('second')
       .image-3
         bg-img('third')
-    .content
+    .list-content
       flex: 1
       min-width: 0
       .title

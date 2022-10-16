@@ -3,11 +3,15 @@ import storage from 'good-storage';
 const SEARCH_KEY = '__search__';
 const SEARCH_MAX_LEN = 20;
 
+const PLAY_KEY = '__play__';
+const PLAY_MAX_LEN = 100;
+
 function insertArray(list, val, compareFn, maxLen) {
   const index = list.findIndex(compareFn);
   if (index > 0) {
     list.splice(index, 1);
-  } else if (index === -1) {
+  }
+  if (index !== 0) {
     list.unshift(val);
   }
 
@@ -44,4 +48,15 @@ export function removeSearch(val) {
 export function clearSearch() {
   storage.remove(SEARCH_KEY);
   return [];
+}
+
+export function loadPlay() {
+  return storage.get(PLAY_KEY, []);
+}
+
+export function savePlay(val) {
+  const list = storage.get(PLAY_KEY, []);
+  insertArray(list, val, i => i.id === val.id, PLAY_MAX_LEN);
+  storage.set(PLAY_KEY, list);
+  return list;
 }

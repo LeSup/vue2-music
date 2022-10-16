@@ -30,7 +30,8 @@ export default {
   },
   watch: {
     data() {
-      this.refresh();
+      // 因为要拿到计算后的高度，所以在下次选然后执行
+      this.$nextTick(this.refresh);
     }
   },
   mounted() {
@@ -63,13 +64,10 @@ export default {
       }
     },
     refresh() {
-      // 因为要拿到计算后的高度，所以在下次选然后执行
-      this.$nextTick(() => {
-        this.scroll?.refresh();
-      });
+      this.scroll?.refresh();
     },
     scrollToElement(el, time) {
-      this.scroll.scrollToElement(el, time);
+      this.scroll?.scrollToElement(el, time);
     },
     // 滚动到指定的位置
     scrollTo(x, y, time) {

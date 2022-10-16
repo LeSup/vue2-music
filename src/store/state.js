@@ -1,5 +1,5 @@
 import { PlayMode } from '@/common/js/config';
-import { loadSearch } from '@/common/js/cache';
+import { loadSearch, loadPlay } from '@/common/js/cache';
 
 export default {
   album: {},
@@ -11,5 +11,6 @@ export default {
   playing: false,
   currentIndex: -1,
   fullScreen: false,
-  searchHistory: loadSearch()
+  searchHistory: loadSearch(),
+  playHistory: loadPlay()
 }

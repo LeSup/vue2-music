@@ -127,7 +127,7 @@ import BaseProgressBar from '@/components/base-progress-bar';
 import BaseProgressCircle from '@/components/base-progress-circle';
 import VmPlayList from '@/views/vm-play-list';
 import animations from 'create-keyframe-animation';
-import { mapGetters, mapMutations } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { PlayMode } from '@/common/js/config';
 import { getLyric } from '@/services/song';
 import { playerMixin } from '@/common/js/mixin';
@@ -288,6 +288,7 @@ export default {
     },
     handleLoaded() {
       this.disabled = false;
+      this.savePlayHistory(this.currentSong);
       if (this.playing) {
         this.$refs.audio.play();
       } else {
@@ -434,6 +435,9 @@ export default {
         scale
       };
     },
+    ...mapActions([
+      'savePlayHistory'
+    ]),
     ...mapMutations([
       'setFullScreen',
       'setPlaying'

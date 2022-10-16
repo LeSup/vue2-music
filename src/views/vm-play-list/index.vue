@@ -31,7 +31,7 @@
           </transition-group>
         </base-scroll>
         <div class="operate">
-          <base-button>
+          <base-button @click="showAddSong">
             <template #icon>
               <i class="icon icon-add"></i>
             </template>
@@ -44,12 +44,14 @@
           <span>关闭</span>
         </div>
       </div>
+      <vm-add-song ref="addSong"></vm-add-song>
       <base-confirm ref="confirm" text="是否清空播放列表" ok-text="清空" @ok="handleOk"></base-confirm>
     </div>
   </transition>
 </template>
 
 <script>
+import VmAddSong from '@/views/vm-add-song';
 import BaseScroll from '@/components/base-scroll';
 import BaseButton from '@/components/base-button';
 import BaseConfirm from '@/components/base-confirm';
@@ -76,22 +78,23 @@ export default {
   },
   watch: {
     currentSong(newVal, oldVal) {
-      if (this.visible && newVal?.id && newVal.id !== oldVal.id) {
+      if (this.visible && newVal?.id !== oldVal?.id) {
         clearTimeout(this.timer);
-        this.timer = setTimeout(this.scrollTo, 500);
+        this.timer = setTimeout(() => {
+          this.scrollTo();
+        }, 500);
       }
     }
   },
   methods: {
     show() {
       this.visible = true;
-      // 显示前Scroll已经渲染完成，需要手动刷新
-      // 500后执行，保证动画执行完毕
+      // 隐藏时高度计算不正确，需要刷新
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
-        this.$refs.scroll.refresh()
-        this.scrollTo()
-      }, 500);
+        this.$refs.scroll.refresh();
+        this.scrollTo();
+      }, 20);
     },
     hide() {
       this.visible = false;
@@ -114,10 +117,10 @@ export default {
       this.clearSongList();
       this.hide();
     },
+    showAddSong() {
+      this.$refs.addSong.show();
+    },
     scrollTo() {
-      if (!this.$refs.scroll) {
-        return;
-      }
       const index = this.sequenceList.findIndex(i => i.id === this.currentSong.id);
       this.$refs.scroll.scrollToElement(this.$refs.playSong[index], 0);
     },
@@ -133,6 +136,7 @@ export default {
     ])
   },
   components: {
+    VmAddSong,
     BaseScroll,
     BaseButton,
     BaseConfirm
@@ -209,6 +213,8 @@ export default {
             margin: 0 auto 0 0.5rem
             font-size: var(--font-size-medium)
             color: var(--color-text-l)
+            ellipsis()
+            min-width: 0
       .operate
         display: flex
         align-items: center

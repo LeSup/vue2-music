@@ -1,6 +1,6 @@
 import { PlayMode } from '@/common/js/config';
 import { shuffle } from '@/common/js/utils';
-import { saveSearch, removeSearch, clearSearch } from '@/common/js/cache';
+import { saveSearch, removeSearch, clearSearch, savePlay } from '@/common/js/cache';
 
 export function selectPlay({ commit, state }, { list, index }) {
   if (state.playMode === PlayMode.random) {
@@ -31,7 +31,6 @@ export function insertSong({ commit, state }, song) {
   const sequenceList = state.sequenceList.slice();
 
   let currentIndex = state.currentIndex;
-  let currentSong = playList[currentIndex];
 
   let fPIdx = playList.findIndex(i => i.id === song.id);
   playList.splice(currentIndex + 1, 0, song);
@@ -48,16 +47,12 @@ export function insertSong({ commit, state }, song) {
     }
   }
 
-  let sIdx = sequenceList.findIndex(i => i.id === currentSong.id);
+  // 增加列表项时，总是在refs最后插入项
   let fSIdx = sequenceList.findIndex(i => i.id === song.id);
-  sequenceList.splice(sIdx + 1, 0, song);
   if (fSIdx > -1) {
-    if (sIdx <= fSIdx) {
-      sequenceList.splice(fSIdx++, 1);
-    } else {
-      sequenceList.splice(fSIdx, 1);
-    }
+    sequenceList.splice(fSIdx, 1);
   }
+  sequenceList.push(song);
 
   commit('setPlayList', playList);
   commit('setSequenceList', sequenceList);
@@ -108,3 +103,7 @@ export function clearSearchHistory({ commit }) {
   commit('setSearchHistory', clearSearch());
 }
 /* 搜索历史——结束 */
+
+export function savePlayHistory({ commit }, val) {
+  commit('setPlayHistory', savePlay(val));
+}
