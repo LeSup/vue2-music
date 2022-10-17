@@ -21,8 +21,8 @@
                 <i class="icon-play" v-if="showIcon(item)"></i>
               </span>
               <span class="name" @click.stop="clickItem(item)">{{item.name}}</span>
-              <span class="icon-wrapper">
-                <i class="icon-not-favorite"></i>
+              <span class="icon-wrapper" @click.stop="toggleFavorite(item)">
+                <i :class="[getFavoriteCls(item)]"></i>
               </span>
               <span class="icon-wrapper" @click.stop="deleteItem(item)">
                 <i class="icon-delete"></i>
@@ -209,6 +209,8 @@ export default {
             spread-area()
             &:not(:first-child)
               margin-left: 0.5rem
+            .icon-favorite
+              color: var(--color-sub-theme)
           .name
             margin: 0 auto 0 0.5rem
             font-size: var(--font-size-medium)

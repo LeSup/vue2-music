@@ -10,5 +10,6 @@ export default {
   currentSong: state => state.playList[state.currentIndex] || {},
   fullScreen: state => state.fullScreen,
   searchHistory: state => state.searchHistory,
-  playHistory: state => state.playHistory
+  playHistory: state => state.playHistory,
+  favoriteList: state => state.favoriteList
 };

@@ -31,5 +31,8 @@ export default {
   },
   setPlayHistory(state, list) {
     state.playHistory = list;
+  },
+  setFavoriteList(state, list) {
+    state.favoriteList = list;
   }
 }

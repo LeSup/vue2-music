@@ -1,6 +1,6 @@
 import { PlayMode } from '@/common/js/config';
 import { shuffle } from '@/common/js/utils';
-import { saveSearch, removeSearch, clearSearch, savePlay } from '@/common/js/cache';
+import { saveSearch, removeSearch, clearSearch, savePlay, saveFavorite, removeFavorite } from '@/common/js/cache';
 
 export function selectPlay({ commit, state }, { list, index }) {
   if (state.playMode === PlayMode.random) {
@@ -16,7 +16,7 @@ export function selectPlay({ commit, state }, { list, index }) {
   commit('setFullScreen', true);
 }
 
-export function randomPlay({ commit }, { list }) {
+export function randomPlay({ commit }, list) {
   commit('setPlayList', shuffle(list));
   commit('setSequenceList', list);
   commit('setPlayMode', PlayMode.random);
@@ -106,4 +106,12 @@ export function clearSearchHistory({ commit }) {
 
 export function savePlayHistory({ commit }, val) {
   commit('setPlayHistory', savePlay(val));
+}
+
+export function saveFavoriteList({ commit }, val) {
+  commit('setFavoriteList', saveFavorite(val));
+}
+
+export function removeFavoriteList({ commit }, val) {
+  commit('setFavoriteList', removeFavorite(val));
 }

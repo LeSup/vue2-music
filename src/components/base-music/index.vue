@@ -97,7 +97,7 @@ export default {
       this._scrollDown(scrollY);
     },
     handleClick() {
-      this.randomPlay({ list: this.data });
+      this.randomPlay(this.data);
     },
     handleClickItem(item, index) {
       this.selectPlay({

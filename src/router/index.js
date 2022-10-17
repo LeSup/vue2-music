@@ -7,6 +7,7 @@ import SingerDetail from '@/views/vm-singer-detail';
 import Rank from '@/views/vm-rank';
 import RankDetail from '@/views/vm-rank-detail';
 import Search from '@/views/vm-search';
+import User from '@/views/vm-user';
 
 Vue.use(VueRouter);
 
@@ -42,5 +43,8 @@ export default new VueRouter({
       path: ':id',
       component: SingerDetail
     }]
+  }, {
+    path: '/user',
+    component: User
   }]
 })

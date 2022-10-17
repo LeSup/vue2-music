@@ -11,7 +11,7 @@
       <div class="main">
         <div class="no-search" v-if="!search">
           <div class="switch-wrapper">
-            <base-switch :value="current" :data="data" @change="toggleCurrent"></base-switch>
+            <base-switch v-model="current" :data="data"></base-switch>
           </div>
           <div class="content">
             <base-scroll :key="0" class="play-history" ref="playHistory" v-if="current === 0" :data="playHistory">
@@ -22,7 +22,7 @@
             </base-scroll>
           </div>
         </div>
-        <base-search-result v-if="search" :value="search" @click="selectSearch"></base-search-result>
+        <base-search-result v-if="search" :value="search" @click="selectSearch" :showSinger="false"></base-search-result>
       </div>
       <base-top-tip ref="topTip">
         <div class="tip-title">
@@ -67,9 +67,6 @@ export default {
     },
     hide() {
       this.visible = false;
-    },
-    toggleCurrent(value) {
-      this.current = value;
     },
     clickPlay(song) {
       this.insertSong(song);
@@ -132,7 +129,8 @@ export default {
       .no-search
         height: 100%
       .content
-        height: calc(100vh - 9.125rem)
+        margin-top: 1.25rem
+        height: calc(100vh - 10.375rem)
         .play-history, .search-history
           height: 100%
           overflow: hidden

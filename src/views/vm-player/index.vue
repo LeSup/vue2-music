@@ -80,8 +80,8 @@
             <div class="i-wrapper i-right" :class="{disabled}" @click="handleNext">
               <i class="icon icon-next"></i>
             </div>
-            <div class="i-wrapper i-right">
-              <i class="icon icon-not-favorite"></i>
+            <div class="i-wrapper i-right" @click="toggleFavorite(currentSong)">
+              <i class="icon" :class="getFavoriteCls(currentSong)"></i>
             </div>
           </div>
         </div>

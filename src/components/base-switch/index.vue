@@ -15,6 +15,10 @@
 <script>
 export default {
   name: 'baseSwitch',
+  model: {
+    prop: 'value',
+    event: 'change'
+  },
   props: {
     value: {
       type: Number,
