@@ -4,7 +4,7 @@ import axiosRetry from 'axios-retry';
 axiosRetry(axios, { retries: 5 });
 
 const ERR_OK = 0;
-const baseURL = process.env.NODE_ENV === 'production' ? 'http://ustbhuangyi.com/music-next/' : '/';
+const baseURL = '/';
 
 axios.defaults.baseURL = baseURL;
 

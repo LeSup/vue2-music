@@ -12,6 +12,7 @@ const getSecuritySign = require("./sign");
 const ERR_OK = 0;
 const token = 5381;
 const port = process.env.PORT || 9000;
+const dev = process.env.NODE_ENV === 'development';
 
 // 歌曲图片加载失败时使用的默认图片
 const fallbackPicUrl =
@@ -110,6 +111,10 @@ function mergeSinger(singer) {
 
 var app = express()
 app.use(cookieParser())
+
+if (!dev) {
+  app.use(express.static('dist'))
+}
 
 // 注册推荐列表接口路由
 app.get("/api/getRecommend", (req, res) => {

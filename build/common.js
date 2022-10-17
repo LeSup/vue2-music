@@ -1,6 +1,9 @@
 const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+const dev = process.env.NODE_ENV === 'development';
 
 module.exports = {
   entry: './src/main.js',
@@ -27,7 +30,7 @@ module.exports = {
       }, {
         test: /\.styl(us)?$/,
         use: [
-          'vue-style-loader',
+          dev ? 'vue-style-loader' : MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
             options: { importLoaders: 1 }
@@ -59,6 +62,9 @@ module.exports = {
       template: 'public/index.html'
     }),
     // 对sfc中不同的类型模块应用不同的loader
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
+    new MiniCssExtractPlugin({
+      filename: 'style.css'
+    })
   ]
 }
